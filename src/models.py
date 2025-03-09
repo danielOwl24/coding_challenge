@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.inspection import inspect
 
 db = SQLAlchemy()
 
@@ -8,6 +9,11 @@ class BaseModel(db.Model):
     @classmethod
     def get_columns(cls):
         return [column.name for column in cls.__table__.columns]
+    
+    @classmethod
+    def get_primary_key(cls):
+        mapper = inspect(cls)
+        return [column.name for column in mapper.primary_key]
 
 class Departments(BaseModel):
     __table_name__ = 'departments'
@@ -21,9 +27,9 @@ class Jobs(BaseModel):
 
 class HiredEmployees(BaseModel):
     __tablename__ = 'hired_employees'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), nullable=False)
-    datetime = db.Column(db.DateTime, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=True)
+    datetime = db.Column(db.DateTime, nullable=True)
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=False)
     job_id = db.Column(db.Integer, db.ForeignKey('jobs.id'), nullable=False)
 
