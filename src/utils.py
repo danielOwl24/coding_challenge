@@ -4,9 +4,11 @@ from models import db, HiredEmployees, Jobs, Departments
 from logging_config import logger
 from sqlalchemy.dialects.postgresql import insert
 import numpy as np
+from fastavro import writer, parse_schema
+import os
 
 def cast_dataframe(df, model):
-    column_types = model.get_column_types()
+    column_types = model.get_column_types_to_pandas()
     
     for col, dtype in column_types.items():
         if col in df.columns:
@@ -56,3 +58,28 @@ def load_csv_to_db(file_path, file_name):
         return {"error": "Database error."}, 500
     except Exception as e:
         return {"error": str(e)}, 500
+    
+def get_table_schema(model):
+    columns = model.get_columns()
+    column_types = model.get_column_types_to_avro()
+    schema = {
+        "type": "record",
+        "name": model.__tablename__,
+        "fields": [{"name": col, "type":column_types[col]} for col in columns]
+    }
+    return parse_schema(schema)
+
+def get_all_models():
+    return [
+        model for model in db.Model.registry._class_registry.values()
+        if isinstance(model, type) and issubclass(model, db.Model) and not model.__dict__.get('__abstract__', False)
+    ]
+
+def backup_table(model):
+    BACKUP_DIR = "data/backup/"
+    schema = get_table_schema(model)
+    filename = os.path.join(BACKUP_DIR, f"{model.__tablename__}.avro")
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+    with open(filename, "wb") as out_file:
+        writer(out_file, schema, [row.__dict__ for row in model.query.all()])

@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.inspection import inspect
-from sqlalchemy import Integer, String, Float, DateTime, Boolean
+from sqlalchemy import Integer, String, Float, DateTime
 
 db = SQLAlchemy()
 
@@ -21,20 +21,24 @@ class BaseModel(db.Model):
         return [fk.column.name for fk in cls.__table__.foreign_keys]
     
     @classmethod
-    def get_column_types(cls):
-        column_types = {}
-        for column in cls.__table__.columns:
-            if isinstance(column.type, Integer):
-                column_types[column.name] = "int"
-            elif isinstance(column.type, Float):
-                column_types[column.name] = "float"
-            elif isinstance(column.type, String):
-                column_types[column.name] = "string"
-            elif isinstance(column.type, DateTime):
-                column_types[column.name] = "datetime"
-            elif isinstance(column.type, Boolean):
-                column_types[column.name] = "bool"
-        return column_types
+    def get_column_types_to_pandas(cls):
+        PG_TO_PANDAS_TYPES = {
+            Integer: "int",
+            Float: "float",
+            String: "string",
+            DateTime: "datetime",
+        }
+        return {column.name: PG_TO_PANDAS_TYPES[type(column.type)] for column in cls.__table__.columns}
+    
+    @classmethod
+    def get_column_types_to_avro(cls):
+        PG_TO_AVRO_TYPES = {
+            Integer: ["int", "null"],
+            String: ["string", "null"],
+            Float: ["float", "null"],
+            DateTime: [{"type": "long", "logicalType": "timestamp-millis"}, "null"]
+        }
+        return {column.name: PG_TO_AVRO_TYPES[type(column.type)] for column in cls.__table__.columns}
     
 class Departments(BaseModel):
     __table_name__ = 'departments'
