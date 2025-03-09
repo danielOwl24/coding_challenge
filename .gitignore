@@ -1,0 +1,42 @@
+# Virtual environment
+venv/
+.env
+*.env
+
+# Byte-compiled and cached files
+__pycache__/
+*.py[cod]
+*.so
+
+# Development environment configuration
+.idea/
+.vscode/
+*.log
+
+# Dependency and package-related files
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+
+# Database and SQL dump files
+*.sqlite3
+*.db
+*.bak
+*.sql
+
+# Backup and temporary files
+*.swp
+*.swo
+.DS_Store
+
+# Docker-related files (if applicable)
+docker-compose.override.yml
+
+# Log files
+logs/
+*.log
+debug.log
+
+# Avro backup files
+*.avro

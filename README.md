@@ -1,1 +1,36 @@
-# coding_challenge
+# Gloabant Coding Challlenge
+
+This Proof of Concept (PoC) is designed to migrate historical data from CSV files into a PostgreSQL database and provide a REST API to receive new data. The system ensures data integrity, supports batch transactions, and includes backup and restore features using Apache Avro.
+
+## Starting 🚀
+
+These instructions will allow you to get a working copy of the project on your local machine for development and testing purposes.
+
+
+### Pre-requisites 📋
+
+To a successfull execution of this project you will need to have installed the next stack in your local machine:
+
+```
+# Check if you have python >= 3.10.
+python3 --version
+```
+
+### Installation 🔧
+Clone the repository of the project from Github:
+
+```
+git clone https://github.com/danielOwl24/coding_challenge.git
+```
+
+Move to the local directory where the repo is cloned.
+
+```
+cd coding_challenge
+```
+
+You should create a Python virtual environment to have all the dependecies of the project installed in an isolated and centralized place within your local machine.
+
+```
+source venv/bin/activate
+```
