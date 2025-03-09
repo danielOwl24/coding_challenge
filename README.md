@@ -34,5 +34,5 @@ cd coding_challenge
 You should create a Python virtual environment to have all the dependecies of the project installed in an isolated and centralized place within your local machine.
 
 ```
-source venv/bin/activate
+source .venv/bin/activate
 ```
