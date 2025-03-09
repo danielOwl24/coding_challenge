@@ -1,4 +1,4 @@
-# Gloabant Coding Challlenge
+# Globant Coding Challlenge
 
 This Proof of Concept (PoC) is designed to migrate historical data from CSV files into a PostgreSQL database and provide a REST API to receive new data. The system ensures data integrity, supports batch transactions, and includes backup and restore features using Apache Avro.
 
@@ -11,10 +11,12 @@ These instructions will allow you to get a working copy of the project on your l
 
 To a successfull execution of this project you will need to have installed the next stack in your local machine:
 
+#### Python
+Check if you have python >= 3.10.
 ```
-# Check if you have python >= 3.10.
 python3 --version
 ```
+If not please install depending on your OS following these instructions: https://www.python.org/downloads/
 
 ### Installation 🔧
 Clone the repository of the project from Github:
