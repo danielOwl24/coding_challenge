@@ -39,3 +39,6 @@ debug.log
 
 # Avro backup files
 *.avro
+
+# Other formats
+*.csv

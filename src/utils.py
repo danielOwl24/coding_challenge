@@ -1,23 +1,19 @@
 import pandas as pd
 from sqlalchemy.exc import IntegrityError
 from models import db, HiredEmployees, Jobs, Departments 
-
+from logging_config import logger
 
 def load_csv_to_db(file_path, file_name):
     model_mapping = {
-        "departments": Departments,
-        "jobs": Jobs,
-        "hired_employees": HiredEmployees
+        "departments.csv": Departments,
+        "jobs.csv": Jobs,
+        "hired_employees.csv": HiredEmployees
     }
-
-    df = pd.read_csv(file_path)
-
     if file_name in model_mapping:
         model_class = model_mapping[file_name]
         fields = model_class.get_columns()
+        df = pd.read_csv(file_path, header=None, names=fields)
         table_items = [model_class(**{field: row[field] for field in fields}) for _, row in df.iterrows()]
-        print(table_items)
-    
     try:
         db.session.bulk_save_objects(table_items)
         db.session.commit()
