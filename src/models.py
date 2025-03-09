@@ -2,17 +2,24 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class Departments(db.Model):
+class BaseModel(db.Model):
+    __abstract__ = True
+
+    @classmethod
+    def get_columns(cls):
+        return [column.name for column in cls.__table__.columns]
+
+class Departments(BaseModel):
     __table_name__ = 'departments'
     id = db.Column(db.Integer, primary_key = True)
     department = db.Column(db.String(255), nullable=False)
 
-class Jobs(db.Model):
+class Jobs(BaseModel):
     __tablename__ = 'jobs'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     job = db.Column(db.String(255), nullable=False)
 
-class HiredEmployees(db.Model):
+class HiredEmployees(BaseModel):
     __tablename__ = 'hired_employees'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(255), nullable=False)
