@@ -3,9 +3,11 @@ from sqlalchemy.exc import IntegrityError
 from models import db, HiredEmployees, Jobs, Departments 
 from logging_config import logger
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import text
 import numpy as np
-from fastavro import writer, parse_schema
+from fastavro import writer, parse_schema, reader
 import os
+import traceback
 
 def cast_dataframe(df, model):
     column_types = model.get_column_types_to_pandas()
@@ -39,7 +41,7 @@ def load_csv_to_db(file_path, file_name):
             df = cast_dataframe(df, model_class)
         else:
             logger.error("The file name is not mapped in our files dictionary.")
-            return {"error": "File not mapped."}, 500
+            return {"error": "File not mapped."}, 400
         
         stmt = insert(model_class).values(df.to_dict(orient="records"))
         stmt = stmt.on_conflict_do_update(
@@ -50,14 +52,14 @@ def load_csv_to_db(file_path, file_name):
         db.session.commit()
         return {"message": f"The file {file_name} was loaded successfully."}, 200
     except pd.errors.EmptyDataError:
-        return {"error": "The csv file is empty."}, 400
+        return {"error": "The csv file is empty."}, 415
     except pd.errors.ParserError:
-        return {"error:" "Error parsing the csv file."}, 400
+        return {"error:" "Error parsing the csv file."}, 422
     except IntegrityError:
         db.session.rollback()
-        return {"error": "Database error."}, 500
+        return {"error": "Integrity Database error."}, 409
     except Exception as e:
-        return {"error": str(e)}, 500
+        return {"error": f"Unexpected error -> {str(e)}"}, 500
     
 def get_table_schema(model):
     columns = model.get_columns()
@@ -83,3 +85,32 @@ def backup_table(model):
 
     with open(filename, "wb") as out_file:
         writer(out_file, schema, [row.__dict__ for row in model.query.all()])
+
+def restore_from_avro(model, filename):
+    if not os.path.exists(filename):
+        return {"error": f"Backup file not found: {filename}"}, 404
+
+    with open(filename, "rb") as in_file:
+        file = reader(in_file)
+        records = [record for record in file]
+
+    if not records:
+        return {"warning": "No data found in backup file."}, 200
+
+    restored_objects = []
+    for record in records:
+        restored_objects.append(record)
+    print(restored_objects)
+
+    try:
+        db.session.execute(text(f"TRUNCATE TABLE {model.__tablename__} RESTART IDENTITY CASCADE"))
+        db.session.add_all(restored_objects)
+        db.session.commit()
+        return {"message": f"Successfully restored {len(restored_objects)} records into {model.__tablename__}."}, 200
+    except IntegrityError as e:
+        traceback.print_exc(e)
+        db.session.rollback()
+        return {"error": f"Integrity Database error"}, 409
+    except Exception as e:
+        db.session.rollback()
+        return {"error": f"Unexpected error -> {str(e)}"}, 500

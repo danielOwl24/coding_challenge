@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from utils import load_csv_to_db, backup_table, get_all_models
-from models import db
+from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro
+from models import db, Departments, Jobs, HiredEmployees
 import traceback
 
 bp = Blueprint("api", __name__)
@@ -25,3 +25,26 @@ def backup_all():
     except Exception as e:
         traceback.print_exc() 
         return jsonify({"error": str(e)}), 500
+
+@bp.route("/restore", methods=["POST"])
+def restore_table():
+    data = request.json
+    table_name = data.get("table")
+    print(table_name)
+
+    if not table_name:
+        return jsonify({"error": "Missing 'table' parameter in request body."}), 400
+
+    TABLES = {
+        "departments": Departments,
+        "jobs": Jobs,
+        "hired_employees": HiredEmployees,
+    }
+
+    model = TABLES.get(table_name.lower())
+    if not model:
+        return jsonify({"error": f"Unknown table: {table_name}"}), 400
+
+    filename = f"data/backup/{table_name}.avro"
+    response, status_code = restore_from_avro(model, filename)
+    return jsonify(response), status_code
