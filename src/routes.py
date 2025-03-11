@@ -2,10 +2,10 @@ from flask import Blueprint, request, jsonify
 from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro, load_queries, execute_query
 from models import Departments, Jobs, HiredEmployees
 import traceback
-from sqlalchemy.sql import text
 
 SQL_QUERIES = load_queries()
 bp = Blueprint("api", __name__)
+
 
 @bp.route("/upload-csv", methods=["POST"])
 def upload_csv():
@@ -49,6 +49,7 @@ def backup_all():
     except Exception as e:
         traceback.print_exc() 
         return jsonify({"error": str(e)}), 500
+    
 
 @bp.route("/restore/<string:table_name>", methods=["POST"])
 def restore_table(table_name):
