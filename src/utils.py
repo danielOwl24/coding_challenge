@@ -20,11 +20,11 @@ def cast_dataframe(df, model):
                 df[col] = pd.to_numeric(df[col], errors='coerce')
             elif dtype == "datetime":
                 df[col] = pd.to_datetime(df[col], errors='coerce')
-                df[col] = df[col].replace({np.nan: None})
             elif dtype == "bool":
                 df[col] = df[col].astype(bool)
             elif dtype == "string":
-                df[col] = df[col].astype(str)
+                df[col] = df[col].astype(object).where(df[col].notna(), None)
+            df[col] = df[col].replace({np.nan: None})
     return df
 
 def load_csv_to_db(file_path, file_name):
@@ -38,6 +38,7 @@ def load_csv_to_db(file_path, file_name):
             model_class = model_mapping[file_name]
             fields = model_class.get_columns()
             df = pd.read_csv(file_path, header=None, names=fields)
+            print(df)
             df = cast_dataframe(df, model_class)
         else:
             logger.error("The file name is not mapped in our files dictionary.")
@@ -100,11 +101,18 @@ def restore_from_avro(model, filename):
     restored_objects = []
     for record in records:
         restored_objects.append(record)
-    print(restored_objects)
+    df = pd.DataFrame(restored_objects)
+    df = cast_dataframe(df, model)
+
 
     try:
         db.session.execute(text(f"TRUNCATE TABLE {model.__tablename__} RESTART IDENTITY CASCADE"))
-        db.session.add_all(restored_objects)
+        stmt = insert(model).values(df.to_dict(orient="records"))
+        stmt = stmt.on_conflict_do_update(
+            index_elements = model.get_primary_key(),
+            set_ = {c.name: c for c in stmt.excluded if c.name != model.get_primary_key()[0]}  # Evitar cambiar el ID
+        )
+        db.session.execute(stmt)
         db.session.commit()
         return {"message": f"Successfully restored {len(restored_objects)} records into {model.__tablename__}."}, 200
     except IntegrityError as e:
@@ -112,5 +120,6 @@ def restore_from_avro(model, filename):
         db.session.rollback()
         return {"error": f"Integrity Database error"}, 409
     except Exception as e:
+        traceback.print_exc(e)
         db.session.rollback()
         return {"error": f"Unexpected error -> {str(e)}"}, 500
