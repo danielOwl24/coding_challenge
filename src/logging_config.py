@@ -12,8 +12,8 @@ logging.basicConfig(
     level=log_level,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        RotatingFileHandler(log_file, maxBytes=1000000, backupCount=3, mode="w"),  # Rotación de logs
-        logging.StreamHandler()  # Mostrar logs en la consola
+        RotatingFileHandler(log_file, maxBytes=1000000, backupCount=3, mode="w"),
+        logging.StreamHandler()
     ]
 )
 

@@ -30,7 +30,6 @@ def backup_all():
 def restore_table():
     data = request.json
     table_name = data.get("table")
-    print(table_name)
 
     if not table_name:
         return jsonify({"error": "Missing 'table' parameter in request body."}), 400

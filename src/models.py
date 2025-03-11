@@ -8,20 +8,20 @@ class BaseModel(db.Model):
     __abstract__ = True
 
     @classmethod
-    def get_columns(cls):
+    def get_columns(cls) -> list:
         return [column.name for column in cls.__table__.columns]
     
     @classmethod
-    def get_primary_key(cls):
+    def get_primary_key(cls) -> list:
         mapper = inspect(cls)
         return [column.name for column in mapper.primary_key]
     
     @classmethod
-    def get_foreign_keys(cls):
+    def get_foreign_keys(cls) -> list:
         return [fk.column.name for fk in cls.__table__.foreign_keys]
     
     @classmethod
-    def get_column_types_to_pandas(cls):
+    def get_column_types_to_pandas(cls) -> dict:
         PG_TO_PANDAS_TYPES = {
             Integer: "int",
             Float: "float",
@@ -31,7 +31,7 @@ class BaseModel(db.Model):
         return {column.name: PG_TO_PANDAS_TYPES[type(column.type)] for column in cls.__table__.columns}
     
     @classmethod
-    def get_column_types_to_avro(cls):
+    def get_column_types_to_avro(cls) -> dict:
         PG_TO_AVRO_TYPES = {
             Integer: ["int", "null"],
             String: ["string", "null"],
