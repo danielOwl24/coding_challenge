@@ -11,7 +11,7 @@ import traceback
 import flask_sqlalchemy
 import yaml
 
-def load_queries(file_path="src/queries.yaml"):
+def load_queries(file_path:str = "src/queries.yaml") -> dict:
     with open(file_path, "r") as file:
         queries = yaml.safe_load(file)
     return queries
