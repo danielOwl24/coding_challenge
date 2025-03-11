@@ -1,24 +1,58 @@
 req_1: 
   "
-  SELECT
-    d.department,
-    j.job,
-    COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 1 AND EXTRACT(YEAR FROM he.datetime) = 2021) AS q1,
-    COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 2 AND EXTRACT(YEAR FROM he.datetime) = 2021) AS q2,
-    COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 3 AND EXTRACT(YEAR FROM he.datetime) = 2021) AS q3,
-    COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 4 AND EXTRACT(YEAR FROM he.datetime) = 2021) AS q4
-  FROM
-    hired_employees AS he
-  LEFT JOIN
-    departments AS d
-    ON he.department_id = d.id
-  LEFT JOIN
-    jobs AS j 
-    ON he.job_id = j.id
-  GROUP BY
-    d.department,
-    j.job
-  ORDER BY
-    d.department,
-    j.job;
+    SELECT
+      d.department,
+      j.job,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 1 AND DATE_PART('year', he.datetime) = 2021) AS q1,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 2 AND DATE_PART('year', he.datetime) = 2021) AS q2,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 3 AND DATE_PART('year', he.datetime) = 2021) AS q3,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 4 AND DATE_PART('year', he.datetime) = 2021) AS q4
+    FROM
+      hired_employees AS he
+    LEFT JOIN
+      departments AS d
+      ON he.department_id = d.id
+    LEFT JOIN
+      jobs AS j 
+      ON he.job_id = j.id
+    GROUP BY
+      d.department,
+      j.job
+    ORDER BY
+      d.department,
+      j.job;
+  "
+
+req_2:
+  "
+    WITH department_count AS (
+        SELECT 
+            he.department_id,
+            d.department,
+            COUNT(*) FILTER (WHERE DATE_PART('year', he.datetime) = 2021) AS emp_count
+        FROM
+        hired_employees AS he
+        LEFT JOIN 
+        departments AS d 
+        ON he.department_id = d.id
+        GROUP BY
+        he.department_id,
+        d.department
+    ),
+    average_count AS (
+        SELECT
+        AVG(emp_count) AS avg_hired_employees
+        FROM department_count
+    )
+    SELECT 
+        dc.department_id AS id,
+        dc.department,
+        dc.emp_count AS hired
+    FROM
+      department_count dc
+    JOIN
+      average_count AS ac 
+      ON dc.emp_count > ac.avg_hired_employees
+    ORDER BY
+      dc.emp_count DESC;
   "

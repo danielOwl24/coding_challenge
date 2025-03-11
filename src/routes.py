@@ -56,5 +56,11 @@ def req_1():
     query = text(SQL_QUERIES["req_1"])
     result = db.session.execute(query)
     data = [dict(row) for row in result.mappings()]
-    #print(data)
+    return jsonify(data), 200
+
+@bp.route("/req_2", methods=["GET"])
+def req_2():
+    query = text(SQL_QUERIES["req_2"])
+    result = db.session.execute(query)
+    data = [dict(row) for row in result.mappings()]
     return jsonify(data), 200
