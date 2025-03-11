@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify
-from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro
+from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro, load_queries
 from models import db, Departments, Jobs, HiredEmployees
 import traceback
+from sqlalchemy.sql import text
+
+SQL_QUERIES = load_queries()
 
 bp = Blueprint("api", __name__)
 
@@ -47,3 +50,11 @@ def restore_table():
     filename = f"data/backup/{table_name}.avro"
     response, status_code = restore_from_avro(model, filename)
     return jsonify(response), status_code
+
+@bp.route("/req_1", methods=["GET"])
+def req_1():
+    query = text(SQL_QUERIES["req_1"])
+    result = db.session.execute(query)
+    data = [dict(row) for row in result.mappings()]
+    #print(data)
+    return jsonify(data), 200

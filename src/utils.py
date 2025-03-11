@@ -9,6 +9,12 @@ from fastavro import writer, parse_schema, reader
 import os
 import traceback
 import flask_sqlalchemy
+import yaml
+
+def load_queries(file_path="src/queries.yaml"):
+    with open(file_path, "r") as file:
+        queries = yaml.safe_load(file)
+    return queries
 
 def cast_dataframe(df:pd.DataFrame, model:flask_sqlalchemy.model.DefaultMeta) -> pd.DataFrame:
     column_types = model.get_column_types_to_pandas()
@@ -49,7 +55,7 @@ def load_csv_to_db(file_path:str, file_name:str) -> tuple:
             index_elements = model_class.get_primary_key(),
             set_ = {c.name: c for c in stmt.excluded if c.name != model_class.get_primary_key()[0]}  # Evitar cambiar el ID
         )
-        
+
         db.session.execute(stmt)
         db.session.commit()
         return {"message": f"The file {file_name} was loaded successfully."}, 200
