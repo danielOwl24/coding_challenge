@@ -25,8 +25,9 @@ def upload_csv():
 
     file_path = f"data/{file.filename}"
     file.save(file_path)
+    response, status_code = load_csv_to_db(file_path, file.filename)
+    return jsonify(response), status_code
 
-    return jsonify(*load_csv_to_db(file_path, file.filename))
 
 @bp.route("/backup", methods=["GET"])
 def backup_all():
@@ -77,6 +78,7 @@ def restore_table(table_name):
     response, status_code = restore_from_avro(model, filename)
     return jsonify(response), status_code
 
+
 @bp.route("/req_1", methods=["GET"])
 def req_1():
     """
@@ -87,6 +89,7 @@ def req_1():
         Response: A JSON response containing the aggregated hiring data or error information.
     """
     return execute_query("req_1", SQL_QUERIES)
+
 
 @bp.route("/req_2", methods=["GET"])
 def req_2():

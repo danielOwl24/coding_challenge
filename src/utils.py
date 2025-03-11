@@ -31,6 +31,7 @@ def load_queries(file_path:str = "src/queries.yaml") -> dict:
         queries = yaml.safe_load(file)
     return queries
 
+
 def cast_dataframe(df:pd.DataFrame, model:flask_sqlalchemy.model.DefaultMeta) -> pd.DataFrame:
     """
     Cast DataFrame columns to match the expected types from the SQLAlchemy model.
@@ -57,6 +58,7 @@ def cast_dataframe(df:pd.DataFrame, model:flask_sqlalchemy.model.DefaultMeta) ->
             df[col] = df[col].replace({np.nan: None})
 
     return df
+
 
 def load_csv_to_db(file_path:str, file_name:str) -> tuple:
     """
@@ -103,6 +105,7 @@ def load_csv_to_db(file_path:str, file_name:str) -> tuple:
     except Exception as e:
         return {"error": f"Unexpected error -> {str(e)}"}, 500
     
+
 def get_table_schema(model:flask_sqlalchemy.model.DefaultMeta):
     """
     Generates an Avro schema for a given SQLAlchemy model.
@@ -123,6 +126,7 @@ def get_table_schema(model:flask_sqlalchemy.model.DefaultMeta):
     }
     return parse_schema(schema)
 
+
 def get_all_models() -> list:
     """
     Retrieves all registered SQLAlchemy models, excluding abstract models.
@@ -134,6 +138,7 @@ def get_all_models() -> list:
         model for model in db.Model.registry._class_registry.values()
         if isinstance(model, type) and issubclass(model, db.Model) and not model.__dict__.get('__abstract__', False)
     ]
+
 
 def backup_table(model:flask_sqlalchemy.model.DefaultMeta) -> None:
     """
@@ -150,6 +155,7 @@ def backup_table(model:flask_sqlalchemy.model.DefaultMeta) -> None:
 
     with open(filename, "wb") as out_file:
         writer(out_file, schema, [row.__dict__ for row in model.query.all()])
+
 
 def restore_from_avro(model:flask_sqlalchemy.model.DefaultMeta, filename:str) -> tuple:
     """
@@ -198,6 +204,7 @@ def restore_from_avro(model:flask_sqlalchemy.model.DefaultMeta, filename:str) ->
         traceback.print_exc(e)
         db.session.rollback()
         return {"error": f"Unexpected error -> {str(e)}"}, 500
+
 
 def execute_query(query_key, sql_queries):
     """
