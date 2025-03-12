@@ -1,10 +1,15 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory, send_file
 from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro, load_queries, execute_query
 from models import Departments, Jobs, HiredEmployees
 import traceback
 
 SQL_QUERIES = load_queries()
 bp = Blueprint("api", __name__)
+
+
+@bp.route("/")
+def serve_static():
+    return send_file("static/index.html")
 
 
 @bp.route("/upload-csv", methods=["POST"])
