@@ -45,16 +45,18 @@ def cast_dataframe(df:pd.DataFrame, model:flask_sqlalchemy.model.DefaultMeta) ->
     """
     column_types = model.get_column_types_to_pandas()
     
-    type_mapping = {
-        "int": lambda col: pd.to_numeric(col, errors="coerce").astype("Int64"),
-        "float": lambda col: pd.to_numeric(col, errors="coerce"),
-        "datetime": lambda col: pd.to_datetime(col, errors="coerce"),
-        "string": lambda col: col.astype(str).replace({np.nan: None}),
-    }
-    
     for col, dtype in column_types.items():
-        if col in df.columns and dtype in type_mapping:
-            df[col] = type_mapping[dtype](df[col])
+        if col in df.columns:
+            if dtype == "int":
+                df[col] = pd.to_numeric(df[col], errors='coerce').astype("Int64")
+            elif dtype == "float":
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+            elif dtype == "datetime":
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+            elif dtype == "bool":
+                df[col] = df[col].astype(bool)
+            elif dtype == "string":
+                df[col] = df[col].astype(object).where(df[col].notna(), None)
             df[col] = df[col].replace({np.nan: None})
 
     return df
