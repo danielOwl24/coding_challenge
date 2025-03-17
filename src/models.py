@@ -110,6 +110,6 @@ class HiredEmployees(BaseModel):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=True)
-    datetime = db.Column(db.DateTime, nullable=True)
+    datetime = db.Column(db.String(255), nullable=True)
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=True)
     job_id = db.Column(db.Integer, db.ForeignKey('jobs.id'), nullable=True)

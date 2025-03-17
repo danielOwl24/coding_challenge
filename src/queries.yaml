@@ -3,10 +3,10 @@ req_1:
     SELECT
       d.department,
       j.job,
-      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 1 AND DATE_PART('year', he.datetime) = 2021) AS q1,
-      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 2 AND DATE_PART('year', he.datetime) = 2021) AS q2,
-      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 3 AND DATE_PART('year', he.datetime) = 2021) AS q3,
-      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime) = 4 AND DATE_PART('year', he.datetime) = 2021) AS q4
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime::DATE) = 1 AND DATE_PART('year', he.datetime::DATE) = 2021) AS q1,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime::DATE) = 2 AND DATE_PART('year', he.datetime::DATE) = 2021) AS q2,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime::DATE) = 3 AND DATE_PART('year', he.datetime::DATE) = 2021) AS q3,
+      COUNT(*) FILTER (WHERE EXTRACT(QUARTER FROM he.datetime::DATE) = 4 AND DATE_PART('year', he.datetime::DATE) = 2021) AS q4
     FROM
       hired_employees AS he
     LEFT JOIN
@@ -29,7 +29,7 @@ req_2:
         SELECT 
             he.department_id,
             d.department,
-            COUNT(*) FILTER (WHERE DATE_PART('year', he.datetime) = 2021) AS emp_count
+            COUNT(*) FILTER (WHERE DATE_PART('year', he.datetime::DATE) = 2021) AS emp_count
         FROM
         hired_employees AS he
         LEFT JOIN 

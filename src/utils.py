@@ -52,9 +52,7 @@ def cast_dataframe(df:pd.DataFrame, model:flask_sqlalchemy.model.DefaultMeta) ->
             elif dtype == "float":
                 df[col] = pd.to_numeric(df[col], errors='coerce')
             elif dtype == "datetime":
-                df[col] = pd.to_datetime(df[col], errors='coerce')
-            elif dtype == "bool":
-                df[col] = df[col].astype(bool)
+                df[col] = pd.to_datetime(df[col], errors="coerce")
             elif dtype == "string":
                 df[col] = df[col].astype(object).where(df[col].notna(), None)
             df[col] = df[col].replace({np.nan: None})
