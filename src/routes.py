@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, send_from_directory, send_file
-from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro, load_queries, execute_query
+from utils import load_csv_to_db, backup_table, get_all_models, restore_from_avro, load_queries, execute_query, graph_req_2_results
 from models import Departments, Jobs, HiredEmployees
 import traceback
 
@@ -94,7 +94,8 @@ def req_1():
     Returns:
         Response: A JSON response containing the aggregated hiring data or error information.
     """
-    return execute_query("req_1", SQL_QUERIES)
+    data, status_code = execute_query("req_1", SQL_QUERIES)
+    return jsonify(data), status_code
 
 
 @bp.route("/req_2", methods=["GET"])
@@ -108,4 +109,6 @@ def req_2():
     Returns:
         Response: A JSON response containing the filtered hiring data or error information. 
     """
-    return execute_query("req_2", SQL_QUERIES)
+    data, status_code = execute_query("req_2", SQL_QUERIES)
+    graph_req_2_results(data)
+    return jsonify(data), status_code

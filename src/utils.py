@@ -12,6 +12,7 @@ import flask_sqlalchemy
 import yaml
 from flask import jsonify
 from sqlalchemy.exc import SQLAlchemyError
+import plotly.express as px
 
 
 def load_queries(file_path:str = "src/queries.yaml") -> dict:
@@ -89,7 +90,7 @@ def load_csv_to_db(file_path:str, file_name:str) -> tuple:
         stmt = insert(model_class).values(df.to_dict(orient="records"))
         stmt = stmt.on_conflict_do_update(
             index_elements = model_class.get_primary_key(),
-            set_ = {c.name: c for c in stmt.excluded if c.name != model_class.get_primary_key()[0]}  # Evitar cambiar el ID
+            set_ = {c.name: c for c in stmt.excluded if c.name != model_class.get_primary_key()[0]}  #Update all columns except the PKs
         )
 
         db.session.execute(stmt)
@@ -206,6 +207,15 @@ def restore_from_avro(model:flask_sqlalchemy.model.DefaultMeta, filename:str) ->
         return {"error": f"Unexpected error -> {str(e)}"}, 500
 
 
+def graph_req_2_results(data):
+    df = pd.DataFrame(data)
+    fig = px.bar(df, x="department", y="hired", orientation="v", 
+                title="Departments Hiring Above the Mean (2021):<br><sup>Ordered by number of employees hired</sup>",
+                color="department",
+                labels={"hired": "Total Hires", "department": "Department Name"})
+    fig.show()
+
+
 def execute_query(query_key, sql_queries):
     """
     Executes a SQL query from the predefined queries and returns the results as JSON.
@@ -224,7 +234,7 @@ def execute_query(query_key, sql_queries):
         
         result = db.session.execute(text(query))
         data = [dict(row) for row in result.mappings()]
-        return jsonify(data), 200
+        return data, 200
 
     except SQLAlchemyError as e:
         db.session.rollback()
