@@ -207,7 +207,18 @@ def restore_from_avro(model:flask_sqlalchemy.model.DefaultMeta, filename:str) ->
         return {"error": f"Unexpected error -> {str(e)}"}, 500
 
 
-def graph_req_2_results(data):
+def graph_req_2_results(data:list) -> None:
+    """
+    Creates a bar chart of departments that hired above the mean in 2021.
+
+    Args:
+        data (list of dict): A list of dictionaries, each containing:
+            - "department" (str): Department name.
+            - "hired" (int): Number of hires.
+
+    Returns:
+        None: Displays the generated bar chart using Plotly.
+    """
     df = pd.DataFrame(data)
     fig = px.bar(df, x="department", y="hired", orientation="v", 
                 title="Departments Hiring Above the Mean (2021):<br><sup>Ordered by number of employees hired</sup>",
