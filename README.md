@@ -37,7 +37,7 @@ You should create a Python virtual environment to have all the dependecies of th
 source .venv/bin/activate
 ```
 
-### Execution
+### Execution :runner:
 In your local environment move to the directory src/ and execute de main python file:
 
 ```
