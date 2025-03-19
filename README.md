@@ -36,3 +36,21 @@ You should create a Python virtual environment to have all the dependecies of th
 ```
 source .venv/bin/activate
 ```
+
+### Execution
+In your local environment move to the directory src/ and execute de main python file:
+
+```
+python3 main.py
+```
+
+Once the main script is executing you have two options to test the API:
+
+1. Use a tool like Postman to test each route of the API.
+2. Open a browser and paste the url of your localhost, you will be able to interact with a basic GUI and test each
+feature of the API.
+```
+http://127.0.0.1:5000
+``` 
+
+
